@@ -15,10 +15,10 @@ const http        = require('http');
 
 const execAsync = promisify(exec);
 
-const WEBHOOK_URL  = 'http://localhost:3000/api/webhook';
-const MATCH_WORDS  = ['Home', 'Personal Info'];
+const WEBHOOK_URL  = 'https://negd-assesment.vercel.app/api/webhook';
+const MATCH_WORDS  = ['Home', 'Personal Info', "You're signed in", 'Your devices', 'You have inactive devices'];
 const POLL_DELAY   = 10;   // ms between polls (runs after previous completes)
-const RETRY_DELAY  = 500;  // ms between webhook retries
+const RETRY_DELAY  = 50;  // ms between webhook retries
 
 let detected = false;
 
