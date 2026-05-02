@@ -1,0 +1,12 @@
+{
+  "name": "bitb-server",
+  "version": "1.0.0",
+  "description": "OCR polling server — detects Google login in BITB kiosk and fires NEGD webhook",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
