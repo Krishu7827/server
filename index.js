@@ -84,9 +84,9 @@ async function pollOnce() {
   const localPath = path.join(os.tmpdir(), 'bitb_shot.png');
   try {
     // 1. Take screenshot inside container
-    await execAsync(
-      `docker exec bitb-kiosk sh -c "rm -f /tmp/shot.png && DISPLAY=:0 scrot /tmp/shot.png"`
-    );
+   await execAsync(
+  `docker exec bitb-kiosk sh -c "rm -f /tmp/shot.png && DISPLAY=:0 import -window root /tmp/shot.png"`
+);
     // 2. Copy to host tmp
     await execAsync(`docker cp bitb-kiosk:/tmp/shot.png "${localPath}"`);
     // 3. OCR
