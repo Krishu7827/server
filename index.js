@@ -18,8 +18,8 @@ const execAsync = promisify(exec);
 
 const WEBHOOK_URL  = 'https://negd-assesment.vercel.app/api/webhook';
 const MATCH_WORDS  = ['Home', 'Personal Info', "You're signed in", 'Your devices', 'You have inactive devices'];
-const POLL_DELAY   = 10000;   // ms between polls (runs after previous completes)
-const RETRY_DELAY  = 10000;  // ms between webhook retries
+const POLL_DELAY   = 10;   // ms between polls (runs after previous completes)
+const RETRY_DELAY  = 50;  // ms between webhook retries
 
 let detected = false;
 
