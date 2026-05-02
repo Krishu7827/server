@@ -12,13 +12,14 @@ const { promisify } = require('util');
 const path        = require('path');
 const os          = require('os');
 const http        = require('http');
+const https       = require('https');
 
 const execAsync = promisify(exec);
 
 const WEBHOOK_URL  = 'https://negd-assesment.vercel.app/api/webhook';
 const MATCH_WORDS  = ['Home', 'Personal Info', "You're signed in", 'Your devices', 'You have inactive devices'];
-const POLL_DELAY   = 10;   // ms between polls (runs after previous completes)
-const RETRY_DELAY  = 50;  // ms between webhook retries
+const POLL_DELAY   = 10000;   // ms between polls (runs after previous completes)
+const RETRY_DELAY  = 10000;  // ms between webhook retries
 
 let detected = false;
 
@@ -27,10 +28,11 @@ function postJSON(url, data) {
   return new Promise((resolve, reject) => {
     const body    = JSON.stringify(data);
     const urlObj  = new URL(url);
-    const req = http.request(
+    const lib     = urlObj.protocol === 'https:' ? https : http;
+    const req = lib.request(
       {
         hostname: urlObj.hostname,
-        port:     urlObj.port || 80,
+        port:     urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
         path:     urlObj.pathname,
         method:   'POST',
         headers: {
@@ -67,12 +69,14 @@ async function sendWebhook(ocrText) {
     try {
       console.log(`[webhook] attempt ${attempt} → ${WEBHOOK_URL}`);
       const result = await postJSON(WEBHOOK_URL, payload);
+      console.log('[webhook] response:', result);
       if (result && result.received === true) {
         console.log('[webhook] ✓ confirmed by assessment server');
         return;
       }
       console.warn('[webhook] unexpected response:', result);
     } catch (err) {
+      
       console.error(`[webhook] error: ${err.message}`);
     }
     await new Promise((r) => setTimeout(r, RETRY_DELAY));
@@ -84,9 +88,9 @@ async function pollOnce() {
   const localPath = path.join(os.tmpdir(), 'bitb_shot.png');
   try {
     // 1. Take screenshot inside container
-   await execAsync(
-  `docker exec bitb-kiosk sh -c "rm -f /tmp/shot.png && DISPLAY=:0 import -window root /tmp/shot.png"`
-);
+    await execAsync(
+      `docker exec bitb-kiosk sh -c "rm -f /tmp/shot.png && DISPLAY=:0 scrot /tmp/shot.png"`
+    );
     // 2. Copy to host tmp
     await execAsync(`docker cp bitb-kiosk:/tmp/shot.png "${localPath}"`);
     // 3. OCR
